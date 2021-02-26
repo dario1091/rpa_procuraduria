@@ -8,7 +8,7 @@ gem "rails", "~> 5.2.3"
 # Use postgresql as the database for Active Record
 # Use Puma as the app server
 gem "puma", "~> 3.11"
-# gem "mysql2"
+gem "mysql2"
   #gem "mysql2","0.5.3"
 gem "bootsnap", "1.1.2", require: false
 gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]

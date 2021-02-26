@@ -10,7 +10,7 @@ class Cliente < ApplicationRecord
     wait = Selenium::WebDriver::Wait.new(timeout: 20)
     wait_datos = Selenium::WebDriver::Wait.new(timeout: 3)
 
-    begin
+   # begin
       puts "======================================================"
       clientes_procesar = Cliente.where(cli_nombre1: "")
       # caps = Selenium::WebDriver::Remote::Capabilities.new
@@ -37,32 +37,50 @@ class Cliente < ApplicationRecord
       end
 
       puts "ANTES DE ENTRAR AL FOR"
-      sleep(7)
+      sleep(15)
+      puts "Cantidad de clientes"
+      puts clientes_procesar.size.to_s
+     begin
       clientes_procesar.each_with_index do |cliente, index|
         # for i in 0..9
+   sleep(1)
         puts "index : " + index.to_s
+        puts "cedual> "+cliente.cli_cedula
+       
         my_btn_consultar = nil
         my_document_number = nil
         sleep(0.5)
 
-        my_btn_consultar = wait_datos.until { driver.find_element(id: "btnConsultar") }
+       my_btn_consultar = wait_datos.until { driver.find_element(id: "btnConsultar") }
 
         my_document_number = wait.until { driver.find_element(id: "txtNumID") }
         my_document_number.clear
-
+        sleep(1)
         my_document_number.send_keys (cliente.cli_cedula)
         sleep(2)
-
+       
         my_btn_consultar.click
         begin
           my_respuesta = nil
-
-          my_respuesta = wait.until { driver.find_element(class: "datosConsultado") }
+          sleep(4)
+          my_respuesta = wait_datos.until { driver.find_element(class: "datosConsultado") }
+        sleep(2)
         rescue => err
           my_respuesta = false
-          puts "ERROR 001 " + err
+        
         ensure
+          
+           cliente.cli_nombre1 =""
+cliente.cli_nombre2 =""
+cliente.cli_apellido1=""
+cliente.cli_apellido2=""
           if my_respuesta
+            
+            #cliente.cli_nombre1 =""
+            #cliente.cli_nombre2 =""
+            #cliente.cli_apellido1=""
+            #cliente.cli_apellido2=""
+            
             my_respuesta.find_elements(:tag_name => "span").each_with_index do |span, index|
               if index == 0
                 cliente.cli_nombre1 = span.text
@@ -70,7 +88,7 @@ class Cliente < ApplicationRecord
               if index == 1
                 cliente.cli_nombre2 = span.text
               end
-
+              
               if index == 2
                 cliente.cli_apellido1 = span.text
               end
@@ -78,10 +96,12 @@ class Cliente < ApplicationRecord
                 cliente.cli_apellido2 = span.text
                 break
               end
+              
             end
-            sleep(1)
+            sleep(2)
+            
             puts "GUARDAMOS EL CLIENTE : " + cliente.cli_id.to_s
-            cliente.save
+            #cliente.save
           else
             puts "--------------------------------------------"
             puts "CEDULA NO EXISTE"
@@ -89,13 +109,14 @@ class Cliente < ApplicationRecord
             my_respuesta = wait.until { driver.find_element(id: "ValidationSummary1") }
             puts json: my_respuesta.text
           end
+          cliente.save
         end
       end
+      
     rescue => err
       puts "ERROR 0002"
-      # logger.error err.message
-      puts err
-      puts "ERROR 0002"
+       logger.error err.message
+      
     ensure
       sleep(1)
 
